@@ -3,7 +3,6 @@ name = "cause"
 version = "0.1.0"
 edition = "2018"
 authors = ["msr1k <msr0210@gmail.com>"]
-edition = "2018"
 license = "MIT"
 description = "A generic [std::error::Error] implementation."
 repository = "https://github.com/msr1k/cause"
