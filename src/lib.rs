@@ -2,7 +2,7 @@
 //!
 //! It takes 1 type parameter(`T: Debug`) who describes what error type happened.
 //!
-//! It is dereference-able as `&T`.
+//! It is dereferencable as `&T`.
 //!
 //! And if you use macro [cause], it automatically stores some extra information,
 //! the filename and line number, only when it was compiled with `debug_assertions`.
@@ -19,12 +19,15 @@
 //!
 //! use ErrorType::*;
 //! use cause::Cause;
+//! use std::error::Error;
 //!
 //! // It creates an instance of `Cause<ErrorType>`
 //! let cause = Cause::new(InternalError);
-//! assert_eq!(format!("{}", cause), "InternalError".to_string());
+//! assert_eq!(cause.to_string(), "InternalError".to_string());
+//! assert!(cause.message().is_none());
+//! assert!(cause.source().is_none());
 //!
-//! // It is dereference-able.
+//! // It is dereferencable.
 //! assert_eq!(*cause, InternalError);
 //!
 //! let http_status_code = match *cause {
@@ -34,23 +37,25 @@
 //! };
 //! assert_eq!(http_status_code, 500);
 //!
-//! // with a message:
+//! // set the message:
 //! let cause = Cause::new(InvalidArgumentsError).msg("oops!");
-//! assert_eq!(
-//!     format!("{}", cause),
-//!     "InvalidArgumentsError: oops!".to_string()
-//! );
+//! assert_eq!(cause.to_string(), "InvalidArgumentsError: oops!".to_string());
+//! assert_eq!(cause.message(), Some(&"oops!".to_string()));
+//! assert!(cause.source().is_none());
 //!
-//! // with source of error (any error type can be set with `src()`):
+//! // set the source of this error (any error type can be set with `src()`):
 //! let cause = Cause::new(InternalError).src(Cause::new(NotFoundError));
 //! assert_eq!(
-//!     format!("{}", cause),
+//!     cause.to_string(),
 //!     "InternalError\n\nCaused by:\n    NotFoundError\n".to_string()
 //! );
+//! assert!(cause.message().is_none());
+//! assert!(cause.source().is_some());
 //!
 //! // an example of Cause who have a standard io error.
-//! use std::io::{Error, ErrorKind};
-//! let io_err = Error::new(ErrorKind::Other, "oh no!");
+//! use std::io::Error as IoErr;
+//! use std::io::ErrorKind;
+//! let io_err = IoErr::new(ErrorKind::Other, "oh no!");
 //! println!("{}", Cause::new(InternalError).src(io_err).msg("internal error caused by io error"));
 //! 
 //! // a couple of macro examples
@@ -68,7 +73,7 @@
 //!
 //! ```
 
-/// cause macro: It appends filename and line number information at the end of message.
+/// A macro to create a [Cause] which situationally appends filename and line number information at the end of message.
 #[macro_export]
 macro_rules! cause {
     ($type:expr) => {
@@ -89,6 +94,7 @@ macro_rules! cause {
 
 use std::error::Error;
 
+/// A tiny generic implementation of the [std::error::Error] trait.
 #[derive(Debug)]
 pub struct Cause<T> {
     cause: T,
@@ -97,6 +103,8 @@ pub struct Cause<T> {
 }
 
 impl<T> Cause<T> {
+
+    /// Create a [Cause] instance with its `cause`.
     pub fn new(cause: T) -> Self {
         Self {
             cause,
@@ -105,14 +113,29 @@ impl<T> Cause<T> {
         }
     }
 
+    /// Set the message for this error.
     pub fn msg(mut self, msg: impl Into<String>) -> Self {
         self.msg = Some(msg.into());
         self
     }
 
+    /// Set the lower-level source of this error, if any.
     pub fn src(mut self, src: impl Error + Send + 'static) -> Self {
         self.src = Some(Box::new(src));
         self
+    }
+
+    /// Get a reference to the `cause`
+    pub fn cause(&self) -> &T {
+        &self.cause
+    }
+
+    /// Get a reference to the message
+    pub fn message(&self) -> Option<&String> {
+        match self.msg.as_ref() {
+            Some(msg) => Some(msg),
+            None => None,
+        }
     }
 }
 
