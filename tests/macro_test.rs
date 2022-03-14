@@ -1,4 +1,3 @@
-use cause::Cause;
 use cause::cause;
 
 #[derive(Debug)]
@@ -13,7 +12,7 @@ fn one_argument_macro_test() {
     if cfg!(debug_assertions) { // $ cargo test
         assert_eq!(
             format!("{}", cause),
-            "SomeError: [tests/macro_test.rs:12]".to_string()
+            "SomeError: [tests/macro_test.rs:11]".to_string()
         );
     } else {                    // $ cargo test --release
         assert_eq!(
@@ -29,7 +28,7 @@ fn two_argument_macro_test() {
     if cfg!(debug_assertions) { // $ cargo test
         assert_eq!(
             format!("{}", cause),
-            "AnotherError: Something went wrong! [tests/macro_test.rs:28]".to_string()
+            "AnotherError: Something went wrong! [tests/macro_test.rs:27]".to_string()
         );
     } else {                    // $ cargo test --release
         assert_eq!(

@@ -64,12 +64,12 @@
 //! let cause = cause!(InternalError);
 //! println!("{}", cause);
 //!   // => "InternalError" on release build
-//!   // => "InternalError: [lib.rs:59]" on debug build
+//!   // => "InternalError: [lib.rs:64]" on debug build
 //!
 //! let cause = cause!(NotFoundError, "There is no such contents.");
 //! println!("{}", cause);
 //!   // => "InternalError: There is no such contents." on release build
-//!   // => "InternalError: There is no such contents. [lib.rs:59]" on debug build
+//!   // => "InternalError: There is no such contents. [lib.rs:69]" on debug build
 //!
 //! ```
 
@@ -78,16 +78,16 @@
 macro_rules! cause {
     ($type:expr) => {
         if cfg!(debug_assertions) {
-            Cause::new($type).msg(format!("[{}:{}]", file!(), line!()))
+            cause::Cause::new($type).msg(format!("[{}:{}]", file!(), line!()))
         } else {
-            Cause::new($type)
+            cause::Cause::new($type)
         }
     };
     ($type:expr, $msg:expr) => {
         if cfg!(debug_assertions) {
-            Cause::new($type).msg(format!("{} [{}:{}]", $msg, file!(), line!()))
+            cause::Cause::new($type).msg(format!("{} [{}:{}]", $msg, file!(), line!()))
         } else {
-            Cause::new($type).msg($msg)
+            cause::Cause::new($type).msg($msg)
         }
     };
 }

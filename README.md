@@ -66,16 +66,20 @@ use cause::cause;
 let cause = cause!(InternalError);
 println!("{}", cause);
   // => "InternalError" on release build
-  // => "InternalError: [lib.rs:59]" on debug build
+  // => "InternalError: [lib.rs:64]" on debug build
 
 let cause = cause!(NotFoundError, "There is no such contents.");
 println!("{}", cause);
   // => "InternalError: There is no such contents." on release build
-  // => "InternalError: There is no such contents. [lib.rs:59]" on debug build
+  // => "InternalError: There is no such contents. [lib.rs:69]" on debug build
 
 ```
 
 ## Changelog
+
+### 0.1.2
+
+- Fixed `cause` macro issue that `use cause::Cause` was implicitly required,
 
 ### 0.1.1
 
