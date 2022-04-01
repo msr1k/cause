@@ -78,16 +78,16 @@
 macro_rules! cause {
     ($type:expr) => {
         if cfg!(debug_assertions) {
-            cause::Cause::new($type).msg(format!("[{}:{}]", file!(), line!()))
+            $crate::Cause::new($type).msg(format!("[{}:{}]", file!(), line!()))
         } else {
-            cause::Cause::new($type)
+            $crate::Cause::new($type)
         }
     };
     ($type:expr, $msg:expr) => {
         if cfg!(debug_assertions) {
-            cause::Cause::new($type).msg(format!("{} [{}:{}]", $msg, file!(), line!()))
+            $crate::Cause::new($type).msg(format!("{} [{}:{}]", $msg, file!(), line!()))
         } else {
-            cause::Cause::new($type).msg($msg)
+            $crate::Cause::new($type).msg($msg)
         }
     };
 }
